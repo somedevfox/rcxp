@@ -1,0 +1,11 @@
+[package]
+name = "rcxp"
+version = "0.1.0"
+authors = ["Egor Poleshko <somedevfox@gmail.com>", "Matthew Lyons <matthew@nowaffles.com>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+sdl2 = "0.35.2"
+rutie = "0.8.3"
