@@ -3,5 +3,5 @@ extern crate sdl2;
 mod window;
 
 fn main() {
-    window::CreateWindow("rcxp", 640, 480);
+    window::create_window("rcxp", 640, 480);
 }
