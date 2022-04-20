@@ -1,25 +1,33 @@
 extern crate sdl2;
+extern crate fragile;
 
+use fragile::Fragile;
 use std::{
-    process,
     thread,
-    sync::mpsc::channel
+    sync::{Mutex, Arc, mpsc},
+    process::exit
 };
 use crate::window::{
     RCXPWindow
 };
 
 fn process_events(window: RCXPWindow) {
-
+    let mut event_pump = window.sdl_context.event_pump().unwrap();
+    'eventloop: loop {
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Quit {..} => { exit(1); }
+                _ => {}
+            }
+        }
+    }
 }
 
 pub fn spawn(window: RCXPWindow) {
     println!("Starting RCXP Event Thread.");
-    let (tx, rx) = channel();
-    tx.send(window);
     
-    let th1 = thread::spawn(move || {
-        process_events();
-    });
-    th1.join().expect("Event Thread has panicked and RCXP will now quit.");
+    /*let event_thread = thread::spawn(move || {
+        // let window = window_rx.recv(); // why dont this work
+    });*/
+    process_events(window);
 }

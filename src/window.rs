@@ -17,8 +17,8 @@ fn force_exit(message: String) {
 }
 
 pub struct RCXPWindow {
-    sdl_context: Sdl,
-    sdl_window: Window
+    pub sdl_context: Sdl,
+    pub sdl_window: Window
 }
 
 /*
