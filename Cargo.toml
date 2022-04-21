@@ -8,5 +8,5 @@ edition = "2021"
 
 [dependencies]
 fragile = "1.2.0"
-sdl2 = "0.35.2"
+sfml = "0.16.0"
 rutie = "0.8.3"

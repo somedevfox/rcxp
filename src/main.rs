@@ -1,19 +1,10 @@
-extern crate sdl2;
+mod sfml_thread;
 
-mod window;
-mod eventthread;
-
-use std::{
-    thread,
-    sync::mpsc
-};
-
-use crate::window::{
-    RCXPWindow
-};
+use crate::sfml_thread::*;
 
 fn main() {
-    let win = window::create_window("rcxp", 640, 480);
-
-    eventthread::spawn(win);
+    let mut sfml_thread = SFMLThread::new(640, 480, String::from("Test"));
+    while sfml_thread.window_open() {
+        sfml_thread.update()
+    }
 }
