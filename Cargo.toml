@@ -7,6 +7,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-fragile = "1.2.0"
 sfml = "0.16.0"
 rutie = "0.8.3"
+flate2-rs = "1.0"
