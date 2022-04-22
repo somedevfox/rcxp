@@ -5,12 +5,14 @@ use rutie::*;
 
 pub struct RGSSThread {
     pub thread: thread::JoinHandle<()>,
-    pub tx: Sender<MessageTypes>,
-    pub rx: Receiver<MessageTypes>
+    tx: Sender<MessageTypes>,
+    rx: Receiver<MessageTypes>,
+    sfml_tx: Sender<MessageTypes>,
+    rgss_rx: Receiver<MessageTypes>
 }
 
 impl RGSSThread {
-    pub fn new() -> Self {
+    pub fn new(sfml_tx: Sender<MessageTypes>, rgss_rx: Receiver<MessageTypes>) -> Self {
         let (tx, thread_rx): (Sender<MessageTypes>, Receiver<MessageTypes>) = channel();
         let (thread_tx, rx): (Sender<MessageTypes>, Receiver<MessageTypes>) = channel();
 
@@ -27,7 +29,9 @@ impl RGSSThread {
         RGSSThread {
             thread,
             tx,
-            rx
+            rx,
+            sfml_tx,
+            rgss_rx
         }
     }
 
