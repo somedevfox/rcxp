@@ -1,32 +1,12 @@
+use crate::thread_common::*;
+
 use std::{thread, sync::{mpsc::*}};
 use sfml::{graphics::*, window::*, system::*};
-
-pub enum MessageTypes {
-    WindowOpen(bool)
-}
 
 pub struct SFMLThread {
     pub thread: thread::JoinHandle<()>,
     pub tx: Sender<MessageTypes>,
     pub rx: Receiver<MessageTypes>,
-}
-
-fn process_send_result(result: std::result::Result<(), SendError<MessageTypes>>) {
-    match result {
-        Ok(_ok) => {}
-        Err(why) => {
-            panic!("Sent message errored with: {:?}", why);
-        }
-    }
-}
-
-fn process_recv_result(result: std::result::Result<MessageTypes, RecvError>) -> MessageTypes {
-    match result {
-        Ok(message) => { message }
-        Err(why) => {
-            panic!("Recv result errored with {:?}", why);
-        }
-    }
 }
 
 impl SFMLThread {
@@ -35,6 +15,8 @@ impl SFMLThread {
         let (thread_tx, rx): (Sender<MessageTypes>, Receiver<MessageTypes>) = channel();
 
         let thread = thread::spawn(move || {
+            let (thread_tx, thread_rx) = (thread_tx, thread_rx);
+
             let mut window = RenderWindow::new((width, height), &title, Style::DEFAULT, &ContextSettings::default());
 
             loop {
