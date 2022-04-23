@@ -1,20 +1,35 @@
 use rutie::*;
 
-pub fn marsh_load(string: String) -> AnyObject {
-    let rstring = RString::from(string);
+pub fn marsh_load(obj: AnyObject) -> AnyObject {
     let marsh = Module::from_existing("Marshal");
 
-    let result = unsafe { marsh.protect_send("load", &[AnyObject::from(&rstring)]) };
+    let result = marsh.protect_send("load", &[obj]);
     match result {
         Err(why) => { panic!("Marshal failed to load data: {:?}", why) },
         Ok(result) => { return result }
     }
 }
 
-pub fn anyobj_to_array(obj: AnyObject, err_str: String) -> Array {
+pub fn anyobj_to_array(obj: AnyObject, err_str: &str) -> Array {
     let result = obj.try_convert_to::<Array>();
     match result {
         Ok(result) => { return result }
         Err(why) => { panic!("{} {:?}", err_str, why) }
+    }
+}
+
+pub fn anyobj_to_rstring(obj: AnyObject, error_str: &str) -> RString {
+    let result = obj.try_convert_to::<RString>();
+    match result {
+        Ok(result) => { return result }
+        Err(why) => { panic!("{} {:?}", error_str, why) }
+    }
+}
+
+pub fn anyobj_to_integer(obj: AnyObject, error_str: &str) -> Integer {
+    let result = obj.try_convert_to::<Integer>();
+    match result {
+        Ok(result) => { return result }
+        Err(why) => { panic!("{} {:?}", error_str, why) }
     }
 }

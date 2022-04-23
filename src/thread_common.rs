@@ -1,7 +1,13 @@
 use std::{sync::{mpsc::*}};
 
+pub enum RGSSError {
+    DataFolderMissing,
+    ScriptsFileMissing,
+    ThreadAck
+}
 
 pub enum MessageTypes {
+    RGSSThreadTerminate(RGSSError),
     SpriteCreate(u64),
     SpriteDispose(u64)
 }

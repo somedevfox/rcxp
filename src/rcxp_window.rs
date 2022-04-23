@@ -45,6 +45,7 @@ impl RCXPWindow<'_> {
                 match message {
                     MessageTypes::SpriteCreate(id) => self.create_sprite(id),
                     MessageTypes::SpriteDispose(id) => self.dispose_sprite(id),
+                    MessageTypes::RGSSThreadTerminate(error) => { self.window.close() }
                 }
             }
         }

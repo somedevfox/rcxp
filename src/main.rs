@@ -6,7 +6,7 @@ mod binding_util;
 use crate::rcxp_window::*;
 use crate::rgss_thread::*;
 use crate::thread_common::*;
-use std::sync::mpsc::*;
+use std::sync::{mpsc::*, Mutex};
 
 fn main() {
     println!("Creating SFML <-> RGSS channels...");
