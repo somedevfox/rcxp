@@ -2,7 +2,7 @@ use crate::thread_common::*;
 use crate::binding_util::*;
 use crate::binding_util;
 use flate2::read::ZlibDecoder;
-use std::{thread, sync::mpsc::*, fs, path::*};
+use std::{thread, sync::mpsc::*, path::Path};
 use std::io::{
     Read,
     Write
@@ -23,16 +23,26 @@ pub fn spawn_rgss_thread(sfml_tx: Sender<MessageTypes>, rgss_rx: Receiver<Messag
         VM::eval("bitmap = Bitmap.new(50, 30)\n").unwrap();
 
         // Run the RGSS Scripts
-        run_rgss_scripts();
+        let error = run_rgss_scripts();
         // Notify the SFML thread that thread processing is finished and we're about to Ack
-        let result = sfml_tx.send(MessageTypes::RGSSThreadTerminate(RGSSError::ThreadAck));
+        let result = sfml_tx.send(MessageTypes::RGSSThreadTerminate(error));
         process_send_result(result);
         // Ack
     });
     return thread; 
 }
 
-fn run_rgss_scripts() {
+fn run_rgss_scripts() -> RGSSError {
+    if !Path::new("Data").exists() {
+        println!("Data folder missing.");
+        return RGSSError::DataFolderMissing;
+    }
+
+    if !Path::new("Data/Scripts.rxdata").exists() {
+        println!("Scripts file missing.");
+        return RGSSError::ScriptsFileMissing;
+    }
+
     // Get the File class
     let rb_file_class = Class::from_existing("File");
     // Open the Scripts file
@@ -61,9 +71,10 @@ fn run_rgss_scripts() {
         match result {
             Err(why) => { 
                 println!("RGSS Error: {}", why);
-                return;
+                return RGSSError::ScriptError;
             }
             _ => {}
         }
     }
+    RGSSError::ThreadFInished
 }
