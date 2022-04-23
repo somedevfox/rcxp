@@ -8,6 +8,8 @@ use rutie::{
 };
 use crate::bitmap::RustBitmap;
 use crate::thread_common;
+use crate::clone_sfml_tx;
+use crate::MessageTypes;
 
 wrappable_struct!(RustBitmap, RustBitmapWrapper, RUSTBITMAP_WRAPPER);
 class!(Bitmap);
@@ -26,13 +28,19 @@ methods!(
                 bitmap.id = data.try_convert_to::<Fixnum>().unwrap().to_i64() as u64;
             }
         }
+        let sfml_tx = clone_sfml_tx();
+        sfml_tx.send(MessageTypes::BitmapCreate(bitmap.width, bitmap.height, bitmap.id));
 
         class.wrap_data(bitmap, &*RUSTBITMAP_WRAPPER)
     }
+
+    
 );
 
-pub fn bind(tx: std::sync::mpsc::Sender<thread_common::MessageTypes>) {
+pub fn bind() {
     Class::new("Bitmap", Some(&Class::from_existing("Object"))).define(|itself| {
         itself.def_self("new", bitmap_new);
+
+        itself.def("dispose", bitmap_dispose);
     });
 }

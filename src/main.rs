@@ -23,14 +23,18 @@ fn main() {
     let (sfml_tx, sfml_rx): (Sender<MessageTypes>, Receiver<MessageTypes>) = channel();
     let (rgss_tx, rgss_rx): (Sender<MessageTypes>, Receiver<MessageTypes>) = channel();
 
+
+    unsafe { SFML_TX = Some(Mutex::new(sfml_tx.clone())) } // This is such a fucking hack I swtg
+    unsafe { RGSS_TX = Some(Mutex::new(rgss_tx.clone())) } // I would do this better if I knew how
+
     println!("Spawing RGSS thread...");
     // Realistically we don't need a super complicated setup for the RGSS thread. 
     // I originally had it wrapped in a struct, but that was pretty pointless.
-    let mut rgss_thread = spawn_rgss_thread(sfml_tx.clone(), rgss_rx);
+    let mut rgss_thread = spawn_rgss_thread(rgss_rx);
     println!("Spawning SFML Window...");
     // SFML occupies the main thread. It's best to do it this way because SFML is NOT
     // thread safe.
-    let mut rcxp_window = RCXPWindow::new(640, 480, "RCXP", sfml_rx, rgss_tx.clone());
+    let mut rcxp_window = RCXPWindow::new(640, 480, "RCXP", sfml_rx);
 
     while rcxp_window.window.is_open() {
         rcxp_window.update();

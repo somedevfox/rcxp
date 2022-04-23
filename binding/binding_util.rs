@@ -6,8 +6,8 @@ use crate::thread_common;
 
 mod bitmap_binding;
 
-pub fn bind_all(tx: std::sync::mpsc::Sender<thread_common::MessageTypes>) {
-    bitmap_binding::bind(tx);
+pub fn bind_all() {
+    bitmap_binding::bind();
 }
 
 pub fn marsh_load(obj: AnyObject) -> AnyObject {

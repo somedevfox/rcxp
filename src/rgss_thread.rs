@@ -9,18 +9,20 @@ use std::io::{
 };
 use rutie::*;
 
-pub fn spawn_rgss_thread(sfml_tx: Sender<MessageTypes>, rgss_rx: Receiver<MessageTypes>) -> thread::JoinHandle<()> {
+pub fn spawn_rgss_thread(rgss_rx: Receiver<MessageTypes>) -> thread::JoinHandle<()> {
     let thread = thread::spawn(move || {
-        let (sfml_tx, rgss_rx) = (sfml_tx, rgss_rx); // Shadow transmitters
+        let (sfml_tx, rgss_rx) = (clone_sfml_tx(), rgss_rx); // Shadow transmitters
 
         // Set up the VM
         VM::init();
         VM::init_loadpath();
         VM::eval("$RCXP = true").unwrap();
 
-        binding_util::bind_all(sfml_tx.clone());
+        binding_util::bind_all();
 
         VM::eval("bitmap = Bitmap.new(50, 30)\n").unwrap();
+
+        loop {}
 
         // Run the RGSS Scripts
         let error = run_rgss_scripts();

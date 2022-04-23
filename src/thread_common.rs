@@ -1,4 +1,8 @@
-use std::{sync::{mpsc::*}};
+use std::{sync::{mpsc::*, Mutex}};
+use crate::bitmap::RustBitmap;
+
+pub static mut SFML_TX: Option<Mutex<Sender<MessageTypes>>> = None;
+pub static mut RGSS_TX: Option<Mutex<Sender<MessageTypes>>> = None;
 
 pub enum RGSSError {
     DataFolderMissing,
@@ -31,4 +35,12 @@ pub fn process_recv_result(result: std::result::Result<MessageTypes, RecvError>)
             panic!("Recv result errored with {:?}", why);
         }
     }
+}
+
+pub fn clone_rgss_tx() -> Sender<MessageTypes> {
+    unsafe { RGSS_TX.as_ref().unwrap().lock().unwrap().clone() }
+}
+
+pub fn clone_sfml_tx() -> Sender<MessageTypes> {
+    unsafe { SFML_TX.as_ref().unwrap().lock().unwrap().clone() }
 }

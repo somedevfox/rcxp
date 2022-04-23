@@ -21,10 +21,11 @@ pub fn create_window(width: u32, height: u32, title: &str) -> RenderWindow {
 impl RCXPWindow<'_> {
     // Remember that the transmitter IS a copy. The struct owns that copy but also owns the reciever.
     // You cannot use the reciever outside of the struct.
-    pub fn new(width: u32, height: u32, title: &str, sfml_rx: Receiver<MessageTypes>, rgss_tx: Sender<MessageTypes>) -> Self {
+    pub fn new(width: u32, height: u32, title: &str, sfml_rx: Receiver<MessageTypes>) -> Self {
         let window = create_window(width, height, title);
         let bitmap_ids: HashMap<u64, SfBox<Texture>> = HashMap::new();
         let sprite_ids: HashMap<u64, Sprite> = HashMap::new();
+        let rgss_tx = clone_rgss_tx();
 
         RCXPWindow {
             window,
