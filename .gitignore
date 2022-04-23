@@ -1,4 +1,6 @@
+# Binary/Build-related files or directories
 /target
-.lock
 .dll
-Cargo.lock
+
+# Lock files
+.lock
