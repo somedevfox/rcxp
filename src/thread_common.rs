@@ -1,7 +1,9 @@
 use std::{sync::{mpsc::*}};
 
+
 pub enum MessageTypes {
-    WindowOpen(bool)
+    SpriteCreate(u64),
+    SpriteDispose(u64)
 }
 
 pub fn process_send_result(result: std::result::Result<(), SendError<MessageTypes>>) {
