@@ -48,10 +48,10 @@ impl RCXPWindow<'_> {
             Ok(message) => {
                 match message {
                     MessageTypes::BitmapCreate(w, h, id) => self.create_bitmap(w, h, id),
-                    MessageTypes::BitmapDispose(id) => { },
+                    MessageTypes::BitmapDispose(id) => { self.dispose_bitmap(id) },
                     MessageTypes::SpriteCreate(id) => self.create_sprite(id),
                     MessageTypes::SpriteDispose(id) => self.dispose_sprite(id),
-                    MessageTypes::RGSSThreadTerminate(error) => { self.window.close() }
+                    MessageTypes::RGSSThreadTerminate(_) => { self.window.close() }
                 }
             }
         }
@@ -71,6 +71,10 @@ impl RCXPWindow<'_> {
     pub fn create_bitmap(&mut self, width: u32, height: u32, bitmap_id: u64) {
         let texture = Texture::new(width, height).unwrap();
         self.bitmap_ids.insert(bitmap_id, texture);
+    }
+
+    pub fn dispose_bitmap(&mut self, bitmap_id: u64) {
+        self.bitmap_ids.remove(&bitmap_id);
     }
 
     // Create and dispose sprites and store them in a hash associated with the sprite ID. 

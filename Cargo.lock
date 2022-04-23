@@ -113,6 +113,7 @@ name = "rcxp"
 version = "0.1.0"
 dependencies = [
  "flate2",
+ "lazy_static",
  "rutie",
  "sfml",
 ]

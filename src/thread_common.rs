@@ -3,7 +3,8 @@ use std::{sync::{mpsc::*}};
 pub enum RGSSError {
     DataFolderMissing,
     ScriptsFileMissing,
-    ThreadAck
+    ScriptError,
+    ThreadFInished
 }
 
 pub enum MessageTypes {
