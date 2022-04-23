@@ -1,6 +1,7 @@
-use sfml::{graphics::*, window::*, system::*};
+use sfml::{*, graphics::*, window::*, system::*};
 use std::{sync::{mpsc::*}};
 use crate::thread_common::*;
+use crate::bitmap::RustBitmap;
 use std::collections::hash_map::*;
 
 // Why does this need a lifetime specifier? I have no idea!
@@ -8,6 +9,7 @@ pub struct RCXPWindow<'a> {
     pub window: RenderWindow,
     rgss_tx: Sender<MessageTypes>,
     sfml_rx: Receiver<MessageTypes>,
+    bitmap_ids: HashMap<u64, SfBox<Texture>>,
     sprite_ids: HashMap<u64, Sprite<'a>>
 }
 
@@ -21,12 +23,14 @@ impl RCXPWindow<'_> {
     // You cannot use the reciever outside of the struct.
     pub fn new(width: u32, height: u32, title: &str, sfml_rx: Receiver<MessageTypes>, rgss_tx: Sender<MessageTypes>) -> Self {
         let window = create_window(width, height, title);
+        let bitmap_ids: HashMap<u64, SfBox<Texture>> = HashMap::new();
         let sprite_ids: HashMap<u64, Sprite> = HashMap::new();
 
         RCXPWindow {
             window,
             rgss_tx,
             sfml_rx,
+            bitmap_ids,
             sprite_ids
         }
     }
@@ -43,6 +47,8 @@ impl RCXPWindow<'_> {
             }
             Ok(message) => {
                 match message {
+                    MessageTypes::BitmapCreate(w, h, id) => self.create_bitmap(w, h, id),
+                    MessageTypes::BitmapDispose(id) => { },
                     MessageTypes::SpriteCreate(id) => self.create_sprite(id),
                     MessageTypes::SpriteDispose(id) => self.dispose_sprite(id),
                     MessageTypes::RGSSThreadTerminate(error) => { self.window.close() }
@@ -60,6 +66,11 @@ impl RCXPWindow<'_> {
                 self.window.close()
             }
         }
+    }
+
+    pub fn create_bitmap(&mut self, width: u32, height: u32, bitmap_id: u64) {
+        let texture = Texture::new(width, height).unwrap();
+        self.bitmap_ids.insert(bitmap_id, texture);
     }
 
     // Create and dispose sprites and store them in a hash associated with the sprite ID. 

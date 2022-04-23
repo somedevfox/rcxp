@@ -1,6 +1,11 @@
+#[macro_use] extern crate rutie;
+#[macro_use] extern crate lazy_static;
+
 mod rcxp_window;
 mod thread_common;
 mod rgss_thread;
+mod bitmap;
+#[path = "../binding/binding_util.rs"]
 mod binding_util;
 
 use crate::rcxp_window::*;

@@ -8,6 +8,8 @@ pub enum RGSSError {
 
 pub enum MessageTypes {
     RGSSThreadTerminate(RGSSError),
+    BitmapCreate(u32, u32, u64),
+    BitmapDispose(u64),
     SpriteCreate(u64),
     SpriteDispose(u64)
 }
