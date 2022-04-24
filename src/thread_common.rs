@@ -8,7 +8,7 @@ pub enum RGSSError {
     DataFolderMissing,
     ScriptsFileMissing,
     ScriptError,
-    ThreadFInished
+    ThreadFinished
 }
 
 pub enum MessageTypes {

@@ -78,5 +78,5 @@ fn run_rgss_scripts() -> RGSSError {
             _ => {}
         }
     }
-    RGSSError::ThreadFInished
+    RGSSError::ThreadFinished
 }
