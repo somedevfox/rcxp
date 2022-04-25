@@ -4,12 +4,15 @@ use rutie::{
     VM,
     Class,
     Object,
+    Boolean,
+    NilClass,
     AnyObject
 };
 use crate::bitmap::RustBitmap;
 use crate::thread_common;
 use crate::clone_sfml_tx;
 use crate::MessageTypes;
+use crate::rgss_thread::RGSS_RX;
 
 wrappable_struct!(RustBitmap, RustBitmapWrapper, RUSTBITMAP_WRAPPER);
 class!(Bitmap);
@@ -34,7 +37,36 @@ methods!(
         class.wrap_data(bitmap, &*RUSTBITMAP_WRAPPER)
     }
 
-    
+    fn bitmap_dispose() -> AnyObject {
+        let id = Class::from_existing("Bitmap")
+                        .protect_send("object_id", &[])
+                        .unwrap()
+                        .try_convert_to::<Fixnum>()
+                        .unwrap().to_i64() as u64;
+        let sfml_tx = clone_sfml_tx();
+        sfml_tx.send(MessageTypes::BitmapDispose(id));
+
+        NilClass::new().to_any_object()
+    } 
+
+    fn bitmap_disposed() -> AnyObject {
+        let mut disposed = false;
+        let msg: MessageTypes;
+        unsafe {
+            match RGSS_RX.as_ref().unwrap().recv() {
+                Err(why) => {
+                    panic!("Bitmap: Failed to get message from SFML Thread");
+                },
+                Ok(m) => msg = m
+            };
+        }
+        match msg {
+            MessageTypes::BitmapCheckIfDisposedResult(d) => disposed = d,
+            _ => { panic!("Bitmap: Got wrong message"); }
+        }
+
+        Boolean::new(disposed).to_any_object()
+    }
 );
 
 pub fn bind() {
@@ -42,5 +74,6 @@ pub fn bind() {
         itself.def_self("new", bitmap_new);
 
         itself.def("dispose", bitmap_dispose);
+        itself.def("disposed?", bitmap_disposed);
     });
 }

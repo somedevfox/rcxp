@@ -2,13 +2,16 @@ use std::{sync::{mpsc::*, Mutex}};
 use crate::bitmap::RustBitmap;
 
 pub static mut SFML_TX: Option<Mutex<Sender<MessageTypes>>> = None;
+pub static mut SFML_RX: Option<Mutex<Receiver<MessageTypes>>> = None;
 pub static mut RGSS_TX: Option<Mutex<Sender<MessageTypes>>> = None;
+pub static mut RGSS_RX: Option<Mutex<Receiver<MessageTypes>>> = None;
 
 pub enum RGSSError {
     DataFolderMissing,
     ScriptsFileMissing,
     ScriptError,
-    ThreadFinished
+    ThreadFinished,
+    BitmapCreationError
 }
 
 pub enum MessageTypes {
@@ -35,6 +38,16 @@ pub enum MessageTypes {
     *     u64     - bitmap id
     */
     BitmapCreate(u32, u32, u64),
+
+    /*
+    * BitmapResult
+    * > When bitmap is created, it will send a message with enum of BitmapResult which has an argument
+    * > of Result<(), RGSSError> (see enum above)
+    * 
+    * Arguments:
+    *     Result - result
+    */
+    BitmapResult(Result<(), RGSSError>),
 
     /* 
     * BitmapDispose

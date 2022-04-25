@@ -50,9 +50,11 @@ impl RCXPWindow<'_> {
                 match message {
                     MessageTypes::BitmapCreate(w, h, id) => self.create_bitmap(w, h, id),
                     MessageTypes::BitmapDispose(id) => { self.dispose_bitmap(id) },
+                    MessageTypes::BitmapCheckIfDisposed(id) => { },
                     MessageTypes::SpriteCreate(id) => self.create_sprite(id),
                     MessageTypes::SpriteDispose(id) => self.dispose_sprite(id),
-                    MessageTypes::RGSSThreadTerminate(_) => { self.window.close() }
+                    MessageTypes::RGSSThreadTerminate(_) => { self.window.close() },
+                    _ => { } // We don't need to do anything with enums such as BitmapCheckIfDisposed result here
                 }
             }
         }
@@ -70,12 +72,23 @@ impl RCXPWindow<'_> {
     }
 
     pub fn create_bitmap(&mut self, width: u32, height: u32, bitmap_id: u64) {
-        let texture = Texture::new(width, height).unwrap();
-        self.bitmap_ids.insert(bitmap_id, texture);
+        let result = Texture::new(width, height).unwrap();
+        self.bitmap_ids.insert(bitmap_id, result);
     }
 
     pub fn dispose_bitmap(&mut self, bitmap_id: u64) {
         self.bitmap_ids.remove(&bitmap_id);
+    }
+
+    // Sends BitmapCheckIfDisposedResult to RGSS thread which contains boolean
+    // true - bitmap exists
+    // false - bitmap doesn't exist/was disposed of
+    pub fn bitmap_check_state(&mut self, bitmap_id: u64) {
+        let mut bitmap_exists = false;
+        if self.bitmap_ids.contains_key(&bitmap_id) {
+            bitmap_exists = true;
+        } 
+        self.rgss_tx.send(MessageTypes::BitmapCheckIfDisposedResult(bitmap_exists));
     }
 
     // Create and dispose sprites and store them in a hash associated with the sprite ID. 

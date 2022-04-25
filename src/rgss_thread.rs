@@ -9,9 +9,12 @@ use std::io::{
 };
 use rutie::*;
 
+pub static mut RGSS_RX : Option<Receiver<MessageTypes>> = None;
+
 pub fn spawn_rgss_thread(rgss_rx: Receiver<MessageTypes>) -> thread::JoinHandle<()> {
     let thread = thread::spawn(move || {
-        let (sfml_tx, rgss_rx) = (clone_sfml_tx(), rgss_rx); // Shadow transmitters
+        let sfml_tx = clone_sfml_tx(); // Shadow transmitters
+        unsafe { RGSS_RX = Some(rgss_rx) }
 
         // Set up the VM
         VM::init();
@@ -20,7 +23,14 @@ pub fn spawn_rgss_thread(rgss_rx: Receiver<MessageTypes>) -> thread::JoinHandle<
 
         binding_util::bind_all();
 
-        VM::eval("bitmap = Bitmap.new(50, 30)\n").unwrap();
+        VM::eval(concat!(
+            "bitmap = Bitmap.new(50, 30)\n",
+            "puts \"Is Bitmap disposed? #{bitmap.disposed?}\"\n",
+            "bitmap.dispose\n",
+            "puts \"Is Bitmap disposed? #{bitmap.disposed?}\"\n",
+            "puts \"Disposing of Bitmap again even if it has been disposed of.\"\n",
+            "bitmap.dispose\n"
+        )).unwrap();
 
         loop {}
 
