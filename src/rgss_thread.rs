@@ -3,10 +3,7 @@ use crate::binding_util::*;
 use crate::binding_util;
 use flate2::read::ZlibDecoder;
 use std::{thread, sync::mpsc::*, path::Path};
-use std::io::{
-    Read,
-    Write
-};
+use std::io::Read;
 use rutie::*;
 
 pub static mut RGSS_RX : Option<Receiver<MessageTypes>> = None;
@@ -31,8 +28,6 @@ pub fn spawn_rgss_thread(rgss_rx: Receiver<MessageTypes>) -> thread::JoinHandle<
             "puts \"Disposing of Bitmap again even if it has been disposed of.\"\n",
             "bitmap.dispose\n"
         )).unwrap();
-
-        loop {}
 
         // Run the RGSS Scripts
         let error = run_rgss_scripts();
@@ -76,10 +71,14 @@ fn run_rgss_scripts() -> RGSSError {
         // Decode the byte buffer (it's encoded with zlib)
         let mut z = ZlibDecoder::new(&zlib_bytes[..]);
         let mut s = String::new();
-        z.read_to_string(&mut s);
+        let z_result = z.read_to_string(&mut s);
+        match z_result {
+            Err(why) => { println!("Zlib decoding of scripts failed with: {:?}", why) },
+            Ok(_) => { }
+        }
 
         // Eval script, and exit the thread if it errors
-        let result = VM::eval(&s);
+        let result = eval!(s, Binding::new(), name);
         match result {
             Err(why) => { 
                 println!("RGSS Error: {}", why);

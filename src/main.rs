@@ -1,5 +1,4 @@
 #[macro_use] extern crate rutie;
-#[macro_use] extern crate lazy_static;
 
 mod rcxp_window;
 mod thread_common;
@@ -30,7 +29,7 @@ fn main() {
     println!("Spawing RGSS thread...");
     // Realistically we don't need a super complicated setup for the RGSS thread. 
     // I originally had it wrapped in a struct, but that was pretty pointless.
-    let mut rgss_thread = spawn_rgss_thread(rgss_rx);
+    let _rgss_thread = spawn_rgss_thread(rgss_rx);
     println!("Spawning SFML Window...");
     // SFML occupies the main thread. It's best to do it this way because SFML is NOT
     // thread safe.

@@ -1,9 +1,5 @@
 use rutie::*;
 
-use std::sync::mpsc::*;
-
-use crate::thread_common;
-
 mod bitmap_binding;
 
 pub fn bind_all() {

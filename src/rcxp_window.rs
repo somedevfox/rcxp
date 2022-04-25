@@ -1,7 +1,6 @@
-use sfml::{*, graphics::*, window::*, system::*};
+use sfml::{*, graphics::*, window::*};
 use std::{sync::{mpsc::*}};
 use crate::thread_common::*;
-use crate::bitmap::RustBitmap;
 use std::collections::hash_map::*;
 
 // Why does this need a lifetime specifier? I have no idea!
@@ -50,7 +49,7 @@ impl RCXPWindow<'_> {
                 match message {
                     MessageTypes::BitmapCreate(w, h, id) => self.create_bitmap(w, h, id),
                     MessageTypes::BitmapDispose(id) => { self.dispose_bitmap(id) },
-                    MessageTypes::BitmapCheckIfDisposed(id) => { },
+                    MessageTypes::BitmapCheckIfDisposed(id) => { self.bitmap_check_state(id) },
                     MessageTypes::SpriteCreate(id) => self.create_sprite(id),
                     MessageTypes::SpriteDispose(id) => self.dispose_sprite(id),
                     MessageTypes::RGSSThreadTerminate(_) => { self.window.close() },
@@ -88,7 +87,8 @@ impl RCXPWindow<'_> {
         if self.bitmap_ids.contains_key(&bitmap_id) {
             bitmap_exists = true;
         } 
-        self.rgss_tx.send(MessageTypes::BitmapCheckIfDisposedResult(bitmap_exists));
+        let result = self.rgss_tx.send(MessageTypes::BitmapCheckIfDisposedResult(!bitmap_exists)); // Should be the inverse of exists
+        process_send_result(result);
     }
 
     // Create and dispose sprites and store them in a hash associated with the sprite ID. 
