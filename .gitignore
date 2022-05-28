@@ -1,6 +1,17 @@
+# Ruby
+ruby/
+
 # Binary/Build-related files or directories
 /target
 *.dll
+CSFML-*-windows-64bit*.zip
+
+# Log files
+*.log
+
+# RCXP Configuration-related files
+.rcxpconfig
+.rcxpnodeps
 
 # Lock files
 *.lock
