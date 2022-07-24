@@ -11,7 +11,7 @@ rcxp Project is licensed under GPLv3 license. (see LICENSE)
 ## Authors and contributors
 Authors of Software:
  - Egor "somedevfox" Poleshko <somedevfox@gmail.com>
- - Matthew "Speak2Erase" Lyons <matthew@nowaffles.com>
+ - Lily "Speak2Erase" Lyons <matthew@nowaffles.com>
 
 ## Building
 To build rcxp, you will need these dependencies:
