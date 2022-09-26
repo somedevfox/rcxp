@@ -2,11 +2,20 @@ use crate::thread_common::*;
 use crate::binding_util::*;
 use crate::binding_util;
 use flate2::read::ZlibDecoder;
+use std::ffi::CString;
 use std::{thread, sync::mpsc::*, path::Path};
 use std::io::Read;
 use rutie::*;
+use std::{
+    env,
+    os::raw::{c_int, c_char}
+};
 
 pub static mut RGSS_RX : Option<Receiver<MessageTypes>> = None;
+
+extern "C" {
+    fn ruby_sysinit(argc: *mut c_int, argv: *mut *mut *mut c_char);
+}
 
 pub fn spawn_rgss_thread(rgss_rx: Receiver<MessageTypes>) -> thread::JoinHandle<()> {
     let thread = thread::spawn(move || {
@@ -14,6 +23,20 @@ pub fn spawn_rgss_thread(rgss_rx: Receiver<MessageTypes>) -> thread::JoinHandle<
         unsafe { RGSS_RX = Some(rgss_rx) }
 
         // Set up the VM
+        unsafe {
+            let args = env::args();
+            let argv: Vec<String> = args.collect();
+            let cstr_argv: Vec<_> = argv.iter()
+                .map(|arg| CString::new(arg.as_str()).unwrap())
+                .collect();
+            let mut ptr_argv: Vec<_> = cstr_argv.iter()
+                .map(|arg| arg.as_ptr() as *mut c_char)
+                .collect();
+            
+            let mut cargc: i32 = ptr_argv.len() as i32;
+            let mut cargv: *mut *mut c_char = ptr_argv.as_mut_ptr();
+            ruby_sysinit(&mut cargc, &mut cargv);
+        }
         VM::init();
         VM::init_loadpath();
         VM::eval("$RCXP = true").unwrap();
@@ -40,11 +63,6 @@ pub fn spawn_rgss_thread(rgss_rx: Receiver<MessageTypes>) -> thread::JoinHandle<
 }
 
 fn run_rgss_scripts() -> RGSSError {
-    if !Path::new("Data").exists() {
-        println!("Data folder missing.");
-        return RGSSError::DataFolderMissing;
-    }
-
     if !Path::new("Data/Scripts.rxdata").exists() {
         println!("Scripts file missing.");
         return RGSSError::ScriptsFileMissing;
